@@ -71,7 +71,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(authToken)
       setUser(loggedUser)
     } catch (err) {
-      // Fallback for offline/demo mode
       const demoUser: User = {
         id: 'usr_' + Date.now(),
         name,

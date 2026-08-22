@@ -39,12 +39,10 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
       if (Array.isArray(data) && data.length > 0) {
         setMessages(data)
       } else {
-        // Use demo messages if initial fetch empty or API unavailable
         setMessages(DEMO_THREADS[conversationId] || [])
       }
       setError(null)
     } catch (err) {
-      // Fallback to local demo thread on API error
       setMessages(DEMO_THREADS[conversationId] || [])
     }
   }, [conversationId])
@@ -55,7 +53,6 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
     fetchMessages().finally(() => setIsLoading(false))
   }, [conversationId, fetchMessages])
 
-  // Realtime Polling fallback
   useEffect(() => {
     if (!conversationId) return
     const timer = setInterval(() => {
@@ -90,7 +87,6 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
           )
         )
       } catch (err) {
-        // Reconcile optimistic message status on failure/offline demo
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === tempId ? { ...msg, status: 'delivered' } : msg

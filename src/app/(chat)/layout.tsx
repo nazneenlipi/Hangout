@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { ConversationList } from '@/components/chat/ConversationList'
 import { useConversations } from '@/hooks/useConversations'
@@ -21,7 +21,6 @@ export default function ChatLayout({
     createGroupConversation,
   } = useConversations()
 
-  // Determine active conversation ID from path
   const pathParts = pathname.split('/')
   const selectedId = pathParts.length > 2 && pathParts[1] === 'chat' ? pathParts[2] : null
 
@@ -43,7 +42,6 @@ export default function ChatLayout({
     }
   }
 
-  // On mobile: if conversation is selected, hide list; if no conversation, hide thread
   const isViewingThreadOnMobile = Boolean(selectedId)
 
   return (

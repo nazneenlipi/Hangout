@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import Link from 'next/link'
 import { ArrowLeft, MoreHorizontal } from 'lucide-react'
 import { Conversation } from '@/types/conversation'
 import { Message } from '@/types/message'
@@ -35,7 +34,6 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
 
   return (
     <section className="flex min-w-0 flex-1 flex-col h-full bg-[#fcfdff]">
-      {/* Header */}
       <header className="flex items-center justify-between border-b border-[#e9edf3] bg-white px-5 sm:px-7 py-4 shrink-0">
         <div className="flex items-center gap-3">
           {onBack && (
@@ -68,7 +66,6 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
         </button>
       </header>
 
-      {/* Messages Stream */}
       <div
         ref={scrollRef}
         className="flex flex-1 flex-col gap-5 overflow-y-auto bg-[#fcfdff] px-5 sm:px-7 py-8"
@@ -88,7 +85,6 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
         )}
       </div>
 
-      {/* Input Composer */}
       <MessageInput onSend={onSendMessage} />
     </section>
   )

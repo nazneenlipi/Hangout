@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useRef } from 'react'
 
-// Lightweight React Query-compatible provider wrapper for caching server state
 interface QueryClient {
   invalidateQueries: (key: string) => void
 }
@@ -11,9 +10,7 @@ const QueryClientContext = createContext<QueryClient | undefined>(undefined)
 
 export const QueryClientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const queryClientRef = useRef<QueryClient>({
-    invalidateQueries: (key: string) => {
-      // Invalidation event handler trigger
-    },
+    invalidateQueries: (key: string) => {},
   })
 
   return (

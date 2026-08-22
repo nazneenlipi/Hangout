@@ -49,7 +49,6 @@ export function useConversations() {
       }
       setError(null)
     } catch (err) {
-      // Fallback to local default state on API failure or demo mode
     } finally {
       setIsLoading(false)
     }
