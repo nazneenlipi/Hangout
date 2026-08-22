@@ -6,6 +6,9 @@ import { QueryClientProvider } from '@/lib/query-client'
 export const metadata: Metadata = {
   title: 'Officetalk - Calm & Focused Chat Surface',
   description: 'A responsive Next.js workspace for direct messages and group conversations.',
+  icons: {
+    icon: '/icon.svg',
+  },
 }
 
 export default function RootLayout({
