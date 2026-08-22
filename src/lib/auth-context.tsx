@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { User } from '@/types/user'
 import { authApi } from '@/lib/api/auth'
+import { getStoredToken } from '@/lib/utils'
+import { mapBackendUser } from '@/lib/api/mappers'
 
 interface AuthContextType {
   user: User | null
@@ -29,11 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const storedToken =
-      typeof window !== 'undefined'
-        ? window.localStorage.getItem('relay_token') || window.sessionStorage.getItem('relay_token')
-        : null
-
+    const storedToken = getStoredToken()
     const storedUserStr =
       typeof window !== 'undefined' ? window.localStorage.getItem('relay_user') : null
 
@@ -57,15 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await authApi.login(phoneNumber, name)
       const authToken = res.token || 'demo-token'
-      const rawUser = res.user as any
-      const loggedUser: User = rawUser
-        ? {
-            id: rawUser._id || rawUser.id || 'usr_' + Date.now(),
-            name: rawUser.name || name,
-            phoneNumber: rawUser.phone || rawUser.phoneNumber || phoneNumber,
-            avatarColor: 'bg-[#111827] text-white',
-            isOnline: true,
-          }
+      const loggedUser: User = res.user
+        ? mapBackendUser(res.user)
         : {
             id: 'usr_' + Date.now(),
             name,

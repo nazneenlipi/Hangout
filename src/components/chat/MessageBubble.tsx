@@ -10,7 +10,7 @@ export interface MessageBubbleProps {
   showSenderName?: boolean
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({
+export const MessageBubble: React.FC<MessageBubbleProps> = React.memo(({
   message,
   showSenderName = false,
 }) => {
@@ -55,4 +55,4 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       </div>
     </div>
   )
-}
+})

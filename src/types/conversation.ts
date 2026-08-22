@@ -1,5 +1,11 @@
 import { User } from './user'
-import { Message } from './message'
+
+export interface LastMessageSummary {
+  text: string
+  content: string
+  time: string
+  createdAt?: string
+}
 
 export interface Conversation {
   id: string
@@ -7,7 +13,7 @@ export interface Conversation {
   isGroup: boolean
   color?: string
   participants?: User[]
-  lastMessage?: Partial<Message> & { text?: string; content?: string; time?: string; createdAt?: string }
+  lastMessage?: LastMessageSummary
   unreadCount?: number
   updatedAt?: string
 }
