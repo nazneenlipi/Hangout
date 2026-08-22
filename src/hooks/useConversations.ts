@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Conversation } from '@/types/conversation'
 import { conversationsApi } from '@/lib/api/conversations'
 import { useAuthContext } from '@/lib/auth-context'
@@ -15,7 +15,12 @@ export function useConversations() {
   const [error, setError] = useState<Error | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
+  const isFetchingRef = useRef<boolean>(false)
+
   const fetchConversations = useCallback(async () => {
+    if (typeof document !== 'undefined' && document.hidden) return
+    if (isFetchingRef.current) return
+
     const currentToken = token || getStoredToken()
 
     if (!currentToken) {
@@ -24,6 +29,7 @@ export function useConversations() {
     }
 
     try {
+      isFetchingRef.current = true
       setIsLoading(true)
       const data = await conversationsApi.getConversations()
       if (Array.isArray(data)) {
@@ -38,6 +44,7 @@ export function useConversations() {
       setConversations([])
     } finally {
       setIsLoading(false)
+      isFetchingRef.current = false
     }
   }, [token])
 
@@ -45,7 +52,7 @@ export function useConversations() {
     fetchConversations()
     const timer = setInterval(() => {
       fetchConversations()
-    }, 4000)
+    }, 8000)
     return () => clearInterval(timer)
   }, [fetchConversations])
 

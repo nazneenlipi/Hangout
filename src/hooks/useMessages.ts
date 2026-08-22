@@ -33,11 +33,16 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
 
   const { sendSocketMessage } = useSocket(token, handleIncomingSocketMessage)
 
+  const isFetchingRef = useRef<boolean>(false)
+
   const fetchMessages = useCallback(async () => {
     if (!conversationId) {
       setMessages([])
       return
     }
+
+    if (typeof document !== 'undefined' && document.hidden) return
+    if (isFetchingRef.current) return
 
     if (!isValidObjectId(conversationId)) {
       setMessages(DEMO_THREADS[conversationId] || [])
@@ -46,6 +51,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
     }
 
     try {
+      isFetchingRef.current = true
       const data = await messagesApi.getMessages(conversationId)
       if (Array.isArray(data)) {
         const mapped = data.map((m: any) => mapBackendMessage(m, user?.id))
@@ -56,6 +62,8 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
       setError(null)
     } catch (err) {
       setMessages(DEMO_THREADS[conversationId] || [])
+    } finally {
+      isFetchingRef.current = false
     }
   }, [conversationId, user?.id])
 
@@ -69,7 +77,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
     if (!conversationId) return
     const timer = setInterval(() => {
       fetchMessages()
-    }, pollingInterval)
+    }, Math.max(pollingInterval, 6000))
     return () => clearInterval(timer)
   }, [conversationId, pollingInterval, fetchMessages])
 
