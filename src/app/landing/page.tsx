@@ -13,7 +13,7 @@ export default function LandingPage() {
           <span className="grid size-9 place-items-center rounded-xl bg-[#2357d5] text-white shadow-md shadow-[#2357d5]/20">
             <MessageCircle size={18} />
           </span>
-          relay<span className="text-[#2357d5]">.</span>
+          chatapp<span className="text-[#2357d5]">.</span>
         </Link>
         <div className="hidden items-center gap-8 text-sm text-[#657083] md:flex">
           <a href="#features" className="hover:text-[#111827] transition">Features</a>
@@ -33,7 +33,7 @@ export default function LandingPage() {
             href="/chat"
             className="rounded-full bg-[#111827] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#2357d5]"
           >
-            Try relay
+            Try chatapp
           </Link>
         </div>
       </nav>
