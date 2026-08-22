@@ -1,3 +1,5 @@
+import { getStoredToken } from '@/lib/utils'
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://frontend-task-chatapp.onrender.com/api'
 
@@ -11,13 +13,7 @@ export class ApiError extends Error {
 }
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token =
-    typeof window !== 'undefined'
-      ? window.localStorage.getItem('relay_token') ||
-        window.localStorage.getItem('token') ||
-        window.sessionStorage.getItem('relay_token') ||
-        window.sessionStorage.getItem('token')
-      : null
+  const token = getStoredToken()
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,

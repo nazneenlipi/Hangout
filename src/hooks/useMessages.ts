@@ -1,11 +1,10 @@
-'use client'
-
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Message } from '@/types/message'
 import { messagesApi } from '@/lib/api/messages'
-import { formatMessageTime } from '@/lib/utils'
+import { formatMessageTime, isValidObjectId } from '@/lib/utils'
 import { useSocket } from './useSocket'
 import { useAuthContext } from '@/lib/auth-context'
+import { mapBackendMessage } from '@/lib/api/mappers'
 
 const DEMO_THREADS: Record<string, Message[]> = {
   conv_1: [
@@ -36,16 +35,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
       if (!rawMsg) return
       const targetConvId = rawMsg.conversationId || rawMsg.conversation_id
       if (activeIdRef.current && targetConvId === activeIdRef.current) {
-        const formattedMsg: Message = {
-          id: rawMsg.id || 'msg_' + Date.now(),
-          conversationId: targetConvId,
-          senderId: rawMsg.senderId || rawMsg.sender_id || 'them',
-          senderName: rawMsg.senderName || rawMsg.sender_name || 'Contact',
-          content: rawMsg.text || rawMsg.content || '',
-          createdAt: formatMessageTime(rawMsg.createdAt || new Date()),
-          from: (rawMsg.senderId || rawMsg.sender_id) === user?.id ? 'me' : 'them',
-          status: 'delivered',
-        }
+        const formattedMsg = mapBackendMessage(rawMsg, user?.id)
         setMessages((prev) => {
           if (prev.some((m) => m.id === formattedMsg.id)) return prev
           return [...prev, formattedMsg]
@@ -63,8 +53,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
       return
     }
 
-    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(conversationId)
-    if (!isValidObjectId) {
+    if (!isValidObjectId(conversationId)) {
       setMessages(DEMO_THREADS[conversationId] || [])
       setError(null)
       return
@@ -73,16 +62,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
     try {
       const data = await messagesApi.getMessages(conversationId)
       if (Array.isArray(data)) {
-        const mapped = data.map((m: any) => ({
-          id: m._id || m.id || 'msg_' + Math.random(),
-          conversationId,
-          senderId: m.sender?._id || m.senderId || m.sender || 'them',
-          senderName: m.sender?.name || m.senderName || 'Contact',
-          content: m.text || m.content || '',
-          createdAt: formatMessageTime(m.createdAt || m.created_at || new Date()),
-          from: (m.sender?._id || m.senderId || m.sender) === user?.id ? ('me' as const) : ('them' as const),
-          status: 'delivered' as const,
-        }))
+        const mapped = data.map((m: any) => mapBackendMessage(m, user?.id))
         setMessages(mapped)
       } else {
         setMessages(DEMO_THREADS[conversationId] || [])
@@ -127,8 +107,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
 
       const sentViaSocket = sendSocketMessage(conversationId, content.trim())
 
-      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(conversationId)
-      if (!isValidObjectId) {
+      if (!isValidObjectId(conversationId)) {
         const deliveredMsg: Message = { ...optimisticMsg, status: 'delivered' }
         if (!DEMO_THREADS[conversationId]) {
           DEMO_THREADS[conversationId] = []

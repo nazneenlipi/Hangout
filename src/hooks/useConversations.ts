@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { Conversation } from '@/types/conversation'
 import { conversationsApi } from '@/lib/api/conversations'
 import { useAuthContext } from '@/lib/auth-context'
-import { formatMessageTime } from '@/lib/utils'
+import { getStoredToken } from '@/lib/utils'
+import { mapBackendConversation } from '@/lib/api/mappers'
 
 const INITIAL_CONVERSATIONS: Conversation[] = [
   {
@@ -36,39 +37,6 @@ const INITIAL_CONVERSATIONS: Conversation[] = [
   },
 ]
 
-function mapBackendConversation(item: any): Conversation {
-  if (!item) return { id: '', name: 'Conversation', isGroup: false }
-  if (item.id && typeof item.isGroup === 'boolean' && item.name && !item._id) {
-    return item as Conversation
-  }
-
-  const isGroup = item.type === 'group' || (Array.isArray(item.participants) && item.participants.length > 2)
-  const convName = item.name || item.participant?.name || item.participant?.phone || item.phone || 'Conversation'
-  const lastMsgText = item.lastMessage?.text || item.lastMessage?.content || ''
-
-  const participantsList = item.participants
-    ? item.participants.map((p: any) => ({ id: p._id || p.id, name: p.name || p.phone, phone: p.phone }))
-    : item.participant
-    ? [{ id: item.participant._id || item.participant.id, name: item.participant.name || item.participant.phone, phone: item.participant.phone }]
-    : [{ id: item._id || item.id, name: item.name || item.phone, phone: item.phone }]
-
-  return {
-    id: item._id || item.id,
-    name: convName,
-    isGroup,
-    lastMessage: item.lastMessage && (lastMsgText || item.lastMessage.createdAt)
-      ? {
-          text: lastMsgText,
-          content: lastMsgText,
-          createdAt: item.lastMessage.createdAt || item.updatedAt,
-          time: formatMessageTime(item.lastMessage.createdAt || item.updatedAt || new Date()),
-        }
-      : undefined,
-    participants: participantsList,
-    updatedAt: item.updatedAt,
-  }
-}
-
 export function useConversations() {
   const { token } = useAuthContext()
   const [conversations, setConversations] = useState<Conversation[]>(() => token ? [] : INITIAL_CONVERSATIONS)
@@ -77,14 +45,7 @@ export function useConversations() {
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   const fetchConversations = useCallback(async () => {
-    const currentToken =
-      token ||
-      (typeof window !== 'undefined'
-        ? window.localStorage.getItem('relay_token') ||
-          window.localStorage.getItem('token') ||
-          window.sessionStorage.getItem('relay_token') ||
-          window.sessionStorage.getItem('token')
-        : null)
+    const currentToken = token || getStoredToken()
 
     if (!currentToken) {
       setConversations(INITIAL_CONVERSATIONS)

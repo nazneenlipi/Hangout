@@ -34,3 +34,18 @@ export function getAvatarBgColor(idOrName: string): string {
   }
   return colors[Math.abs(hash) % colors.length]
 }
+
+export function isValidObjectId(id?: string | null): boolean {
+  if (!id) return false
+  return /^[0-9a-fA-F]{24}$/.test(id)
+}
+
+export function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null
+  return (
+    window.localStorage.getItem('relay_token') ||
+    window.localStorage.getItem('token') ||
+    window.sessionStorage.getItem('relay_token') ||
+    window.sessionStorage.getItem('token')
+  )
+}
