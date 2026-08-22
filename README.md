@@ -53,6 +53,4 @@ To test live authentication and conversation sync on the `/login` page, use:
 - **Group Member Validation**: Enforced minimum participant counts in the UI to satisfy the backend rule (`a group needs at least 3 members`).
 
 ### 5. What I'd Improve With More Time
-- Image/file attachments and voice notes.
-- Message reactions and full-text conversation search.
 - Server-side HttpOnly cookie session management.
