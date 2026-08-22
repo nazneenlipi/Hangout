@@ -2,14 +2,15 @@
 
 import { useEffect, useRef } from 'react'
 import { io, Socket } from 'socket.io-client'
+import { RawBackendMessageDto, RawBackendConversationDto } from '@/types/backendDto'
 
 const SOCKET_SERVER_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || 'https://frontend-task-chatapp.onrender.com'
 
 export function useSocket(
   token: string | null,
-  onNewMessage?: (msg: any) => void,
-  onConversationUpdated?: (conv: any) => void
+  onNewMessage?: (msg: RawBackendMessageDto) => void,
+  onConversationUpdated?: (conv: RawBackendConversationDto) => void
 ) {
   const socketRef = useRef<Socket | null>(null)
 

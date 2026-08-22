@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Message } from '@/types/message'
 import { messagesApi } from '@/lib/api/messages'
@@ -6,6 +8,7 @@ import { useSocket } from './useSocket'
 import { useAuthContext } from '@/lib/auth-context'
 import { DEMO_THREADS } from '@/lib/constants/demoData'
 import { mapBackendMessage } from '@/lib/api/mappers'
+import { RawBackendMessageDto } from '@/types/backendDto'
 
 export function useMessages(conversationId: string | null, pollingInterval = 3000) {
   const { token, user } = useAuthContext()
@@ -17,7 +20,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
   activeIdRef.current = conversationId
 
   const handleIncomingSocketMessage = useCallback(
-    (rawMsg: any) => {
+    (rawMsg: RawBackendMessageDto) => {
       if (!rawMsg) return
       const targetConvId = rawMsg.conversationId || rawMsg.conversation_id
       if (activeIdRef.current && targetConvId === activeIdRef.current) {
@@ -54,7 +57,7 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
       isFetchingRef.current = true
       const data = await messagesApi.getMessages(conversationId)
       if (Array.isArray(data)) {
-        const mapped = data.map((m: any) => mapBackendMessage(m, user?.id))
+        const mapped = (data as RawBackendMessageDto[]).map((m) => mapBackendMessage(m, user?.id))
         setMessages(mapped)
       } else {
         setMessages(DEMO_THREADS[conversationId] || [])

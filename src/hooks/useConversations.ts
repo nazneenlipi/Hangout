@@ -7,6 +7,7 @@ import { useAuthContext } from '@/lib/auth-context'
 import { getStoredToken } from '@/lib/utils'
 import { INITIAL_CONVERSATIONS } from '@/lib/constants/demoData'
 import { mapBackendConversation } from '@/lib/api/mappers'
+import { RawBackendConversationDto } from '@/types/backendDto'
 
 export function useConversations() {
   const { token } = useAuthContext()
@@ -33,7 +34,7 @@ export function useConversations() {
       setIsLoading(true)
       const data = await conversationsApi.getConversations()
       if (Array.isArray(data)) {
-        const mapped = data.map(mapBackendConversation)
+        const mapped = (data as RawBackendConversationDto[]).map(mapBackendConversation)
         setConversations(mapped)
       } else {
         setConversations([])
