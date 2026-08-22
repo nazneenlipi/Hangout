@@ -5,37 +5,8 @@ import { Conversation } from '@/types/conversation'
 import { conversationsApi } from '@/lib/api/conversations'
 import { useAuthContext } from '@/lib/auth-context'
 import { getStoredToken } from '@/lib/utils'
+import { INITIAL_CONVERSATIONS } from '@/lib/constants/demoData'
 import { mapBackendConversation } from '@/lib/api/mappers'
-
-const INITIAL_CONVERSATIONS: Conversation[] = [
-  {
-    id: 'conv_1',
-    name: 'Alex Lee',
-    isGroup: false,
-    color: 'bg-[#f4d5c5] text-[#9c4c27]',
-    lastMessage: { text: 'Perfect — shipping it to the team now.', content: 'Perfect — shipping it to the team now.', time: '09:43', createdAt: '09:43' },
-    participants: [{ id: 'u1', name: 'Alex Lee', avatarColor: 'bg-[#f4d5c5] text-[#9c4c27]', isOnline: true }],
-  },
-  {
-    id: 'conv_2',
-    name: 'Product notes',
-    isGroup: true,
-    color: 'bg-[#d6e4fb] text-[#2357d5]',
-    lastMessage: { text: 'Maya: I added the latest wireframes.', content: 'Maya: I added the latest wireframes.', time: 'Yesterday', createdAt: 'Yesterday' },
-    participants: [
-      { id: 'u2', name: 'Maya Lin', isOnline: true },
-      { id: 'u3', name: 'Devon Bell', isOnline: false },
-    ],
-  },
-  {
-    id: 'conv_3',
-    name: 'Jordan Kim',
-    isGroup: false,
-    color: 'bg-[#d8eddf] text-[#27774d]',
-    lastMessage: { text: 'Can you review this before lunch?', content: 'Can you review this before lunch?', time: 'Mon', createdAt: 'Mon' },
-    participants: [{ id: 'u4', name: 'Jordan Kim', avatarColor: 'bg-[#d8eddf] text-[#27774d]', isOnline: false }],
-  },
-]
 
 export function useConversations() {
   const { token } = useAuthContext()

@@ -1,4 +1,5 @@
 import { apiFetch, unwrap, type ApiEnvelope } from './client'
+import { ENDPOINTS } from './endpoints'
 import { User } from '@/types/user'
 
 export interface LoginResponse {
@@ -8,7 +9,7 @@ export interface LoginResponse {
 
 export const authApi = {
   login: async (phoneNumber: string, name: string): Promise<LoginResponse> => {
-    const res = await apiFetch<ApiEnvelope<LoginResponse>>('/auth/login', {
+    const res = await apiFetch<ApiEnvelope<LoginResponse>>(ENDPOINTS.AUTH.LOGIN, {
       method: 'POST',
       body: JSON.stringify({
         phone: phoneNumber,
@@ -20,7 +21,7 @@ export const authApi = {
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const res = await apiFetch<ApiEnvelope<User>>('/auth/me')
+    const res = await apiFetch<ApiEnvelope<User>>(ENDPOINTS.AUTH.ME)
     return unwrap(res)
   },
 }
