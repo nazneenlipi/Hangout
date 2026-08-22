@@ -30,7 +30,16 @@ export const conversationsApi = {
   },
 
   searchUsers: async (query: string): Promise<User[]> => {
-    const res = await apiFetch<ApiEnvelope<User[]>>(`/users/search?q=${encodeURIComponent(query)}`)
-    return unwrap(res)
+    const res = await apiFetch<ApiEnvelope<any[]>>(`/users/search?q=${encodeURIComponent(query)}`)
+    const raw = unwrap(res)
+    if (Array.isArray(raw)) {
+      return raw.map((u: any) => ({
+        id: u._id || u.id,
+        name: u.name || u.phone || 'User',
+        phoneNumber: u.phone || u.phoneNumber,
+        isOnline: true,
+      }))
+    }
+    return []
   },
 }

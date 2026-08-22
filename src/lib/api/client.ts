@@ -13,7 +13,10 @@ export class ApiError extends Error {
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token =
     typeof window !== 'undefined'
-      ? window.sessionStorage.getItem('relay_token') || window.localStorage.getItem('relay_token')
+      ? window.localStorage.getItem('relay_token') ||
+        window.localStorage.getItem('token') ||
+        window.sessionStorage.getItem('relay_token') ||
+        window.sessionStorage.getItem('token')
       : null
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -37,13 +40,14 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
   return body as T
 }
 
-export type ApiEnvelope<T> = T | { data?: T; items?: T; results?: T }
+export type ApiEnvelope<T> = T | { data?: T; items?: T; results?: T; messages?: T }
 
 export function unwrap<T>(payload: ApiEnvelope<T>): T {
   if (payload && typeof payload === 'object') {
     if ('data' in payload && payload.data !== undefined) return payload.data as T
     if ('items' in payload && payload.items !== undefined) return payload.items as T
     if ('results' in payload && payload.results !== undefined) return payload.results as T
+    if ('messages' in payload && payload.messages !== undefined) return payload.messages as T
   }
   return payload as T
 }

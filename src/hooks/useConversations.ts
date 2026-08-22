@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Conversation } from '@/types/conversation'
 import { conversationsApi } from '@/lib/api/conversations'
+import { useAuthContext } from '@/lib/auth-context'
+import { formatMessageTime } from '@/lib/utils'
 
 const INITIAL_CONVERSATIONS: Conversation[] = [
   {
@@ -34,34 +36,96 @@ const INITIAL_CONVERSATIONS: Conversation[] = [
   },
 ]
 
+function mapBackendConversation(item: any): Conversation {
+  if (!item) return { id: '', name: 'Conversation', isGroup: false }
+  if (item.id && typeof item.isGroup === 'boolean' && item.name && !item._id) {
+    return item as Conversation
+  }
+
+  const isGroup = item.type === 'group' || (Array.isArray(item.participants) && item.participants.length > 2)
+  const convName = item.name || item.participant?.name || item.participant?.phone || item.phone || 'Conversation'
+  const lastMsgText = item.lastMessage?.text || item.lastMessage?.content || ''
+
+  const participantsList = item.participants
+    ? item.participants.map((p: any) => ({ id: p._id || p.id, name: p.name || p.phone, phone: p.phone }))
+    : item.participant
+    ? [{ id: item.participant._id || item.participant.id, name: item.participant.name || item.participant.phone, phone: item.participant.phone }]
+    : [{ id: item._id || item.id, name: item.name || item.phone, phone: item.phone }]
+
+  return {
+    id: item._id || item.id,
+    name: convName,
+    isGroup,
+    lastMessage: item.lastMessage && (lastMsgText || item.lastMessage.createdAt)
+      ? {
+          text: lastMsgText,
+          content: lastMsgText,
+          createdAt: item.lastMessage.createdAt || item.updatedAt,
+          time: formatMessageTime(item.lastMessage.createdAt || item.updatedAt || new Date()),
+        }
+      : undefined,
+    participants: participantsList,
+    updatedAt: item.updatedAt,
+  }
+}
+
 export function useConversations() {
-  const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS)
+  const { token } = useAuthContext()
+  const [conversations, setConversations] = useState<Conversation[]>(() => token ? [] : INITIAL_CONVERSATIONS)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [error, setError] = useState<Error | null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
   const fetchConversations = useCallback(async () => {
+    const currentToken =
+      token ||
+      (typeof window !== 'undefined'
+        ? window.localStorage.getItem('relay_token') ||
+          window.localStorage.getItem('token') ||
+          window.sessionStorage.getItem('relay_token') ||
+          window.sessionStorage.getItem('token')
+        : null)
+
+    if (!currentToken) {
+      setConversations(INITIAL_CONVERSATIONS)
+      return
+    }
+
     try {
       setIsLoading(true)
+      console.log('[useConversations] Fetching /api/conversations...')
       const data = await conversationsApi.getConversations()
-      if (Array.isArray(data) && data.length > 0) {
-        setConversations(data)
+      console.log('[useConversations] Raw API response:', data)
+      if (Array.isArray(data)) {
+        const mapped = data.map(mapBackendConversation)
+        console.log('[useConversations] Successfully mapped conversations count:', mapped.length, mapped)
+        setConversations(mapped)
+      } else {
+        setConversations([])
       }
       setError(null)
     } catch (err) {
+      console.error('[useConversations] Error fetching conversations from API:', err)
+      setError(err as Error)
+      setConversations([])
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [token])
 
   useEffect(() => {
     fetchConversations()
+    const timer = setInterval(() => {
+      fetchConversations()
+    }, 4000)
+    return () => clearInterval(timer)
   }, [fetchConversations])
 
   const createDirectConversation = useCallback(async (participantId: string, name: string) => {
     try {
-      const newConv = await conversationsApi.createConversation(participantId)
-      setConversations((prev) => [newConv, ...prev])
+      const raw = await conversationsApi.createConversation(participantId)
+      const newConv = mapBackendConversation(raw)
+      setConversations((prev) => [newConv, ...prev.filter((c) => c.id !== newConv.id)])
       return newConv
     } catch (err) {
       const fallbackConv: Conversation = {
@@ -79,9 +143,10 @@ export function useConversations() {
 
   const createGroupConversation = useCallback(async (name: string, participantIds: string[]) => {
     try {
-      const newConv = await conversationsApi.createGroup(name, participantIds)
-      setConversations((prev) => [newConv, ...prev])
-      return newConv
+      const raw = await conversationsApi.createGroup(name, participantIds)
+      const newGroup = mapBackendConversation(raw)
+      setConversations((prev) => [newGroup, ...prev])
+      return newGroup
     } catch (err) {
       const fallbackGroup: Conversation = {
         id: 'group_' + Date.now(),

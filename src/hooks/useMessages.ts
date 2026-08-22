@@ -63,17 +63,24 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
       return
     }
 
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(conversationId)
+    if (!isValidObjectId) {
+      setMessages(DEMO_THREADS[conversationId] || [])
+      setError(null)
+      return
+    }
+
     try {
       const data = await messagesApi.getMessages(conversationId)
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         const mapped = data.map((m: any) => ({
-          id: m.id || 'msg_' + Math.random(),
+          id: m._id || m.id || 'msg_' + Math.random(),
           conversationId,
-          senderId: m.senderId || m.sender_id || 'them',
-          senderName: m.senderName || m.sender_name || 'Contact',
-          content: m.content || m.text || '',
+          senderId: m.sender?._id || m.senderId || m.sender || 'them',
+          senderName: m.sender?.name || m.senderName || 'Contact',
+          content: m.text || m.content || '',
           createdAt: formatMessageTime(m.createdAt || m.created_at || new Date()),
-          from: (m.senderId || m.sender_id) === user?.id ? ('me' as const) : ('them' as const),
+          from: (m.sender?._id || m.senderId || m.sender) === user?.id ? ('me' as const) : ('them' as const),
           status: 'delivered' as const,
         }))
         setMessages(mapped)
@@ -120,18 +127,34 @@ export function useMessages(conversationId: string | null, pollingInterval = 300
 
       const sentViaSocket = sendSocketMessage(conversationId, content.trim())
 
+      const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(conversationId)
+      if (!isValidObjectId) {
+        const deliveredMsg: Message = { ...optimisticMsg, status: 'delivered' }
+        if (!DEMO_THREADS[conversationId]) {
+          DEMO_THREADS[conversationId] = []
+        }
+        if (!DEMO_THREADS[conversationId].some((m) => m.id === tempId)) {
+          DEMO_THREADS[conversationId].push(deliveredMsg)
+        }
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === tempId ? deliveredMsg : msg))
+        )
+        return
+      }
+
       try {
         const createdMsg = await messagesApi.sendMessage(conversationId, content.trim())
+        const resAny = createdMsg as any
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === tempId
               ? {
-                  id: createdMsg.id || tempId,
+                  id: resAny?._id || resAny?.id || tempId,
                   conversationId,
                   senderId: user?.id || 'usr_me',
                   senderName: user?.name || 'Jamie Rivera',
-                  content: createdMsg.content || content.trim(),
-                  createdAt: formatMessageTime(createdMsg.createdAt || new Date()),
+                  content: resAny?.content || resAny?.text || content.trim(),
+                  createdAt: formatMessageTime(resAny?.createdAt || new Date()),
                   from: 'me',
                   status: 'delivered',
                 }

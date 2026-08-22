@@ -1,10 +1,41 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { MessageThread } from '@/components/chat/MessageThread'
 import { useConversations } from '@/hooks/useConversations'
 import { useMessages } from '@/hooks/useMessages'
+import { conversationsApi } from '@/lib/api/conversations'
+import { Conversation } from '@/types/conversation'
+import { formatMessageTime } from '@/lib/utils'
+
+function mapSingleConversation(item: any): Conversation {
+  if (!item) return { id: '', name: 'Conversation', isGroup: false }
+  if (item.id && typeof item.isGroup === 'boolean' && item.name) return item as Conversation
+  const isGroup = item.type === 'group' || (Boolean(item.name) && item.type !== 'direct')
+  const convName = item.name || item.participant?.name || item.participant?.phone || 'Chat'
+  const lastMsgText = item.lastMessage?.text || item.lastMessage?.content || ''
+
+  return {
+    id: item._id || item.id,
+    name: convName,
+    isGroup,
+    lastMessage: item.lastMessage && (lastMsgText || item.lastMessage.createdAt)
+      ? {
+          text: lastMsgText,
+          content: lastMsgText,
+          createdAt: item.lastMessage.createdAt || item.updatedAt,
+          time: formatMessageTime(item.lastMessage.createdAt || item.updatedAt || new Date()),
+        }
+      : undefined,
+    participants: item.participants
+      ? item.participants.map((p: any) => ({ id: p._id || p.id, name: p.name, phone: p.phone }))
+      : item.participant
+      ? [{ id: item.participant._id || item.participant.id, name: item.participant.name, phone: item.participant.phone }]
+      : [],
+    updatedAt: item.updatedAt,
+  }
+}
 
 export default function ActiveConversationPage() {
   const params = useParams()
@@ -13,12 +44,29 @@ export default function ActiveConversationPage() {
 
   const { allConversations } = useConversations()
   const { messages, sendMessage } = useMessages(conversationId)
+  const [fetchedConv, setFetchedConv] = useState<Conversation | null>(null)
 
-  const activeConversation = allConversations.find((c) => c.id === conversationId) || {
-    id: conversationId || 'conv_1',
-    name: conversationId === 'conv_2' ? 'Product notes' : conversationId === 'conv_3' ? 'Jordan Kim' : 'Alex Lee',
-    isGroup: conversationId === 'conv_2',
-    color: conversationId === 'conv_2' ? 'bg-[#d6e4fb] text-[#2357d5]' : conversationId === 'conv_3' ? 'bg-[#d8eddf] text-[#27774d]' : 'bg-[#f4d5c5] text-[#9c4c27]',
+  const foundConv = allConversations.find((c) => c.id === conversationId)
+
+  useEffect(() => {
+    if (foundConv) return
+    if (!conversationId) return
+
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(conversationId)
+    if (isValidObjectId) {
+      conversationsApi
+        .getConversationById(conversationId)
+        .then((raw) => {
+          if (raw) setFetchedConv(mapSingleConversation(raw))
+        })
+        .catch(() => {})
+    }
+  }, [conversationId, foundConv])
+
+  const activeConversation: Conversation = foundConv || fetchedConv || {
+    id: conversationId || '',
+    name: 'Chat',
+    isGroup: false,
   }
 
   const handleBack = () => {

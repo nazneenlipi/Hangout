@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const storedToken =
       typeof window !== 'undefined'
-        ? window.sessionStorage.getItem('relay_token') || window.localStorage.getItem('relay_token')
+        ? window.localStorage.getItem('relay_token') || window.sessionStorage.getItem('relay_token')
         : null
 
     const storedUserStr =
@@ -44,10 +44,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         setUser(JSON.parse(storedUserStr))
       } catch (e) {
-        setUser(DEFAULT_USER)
+        setUser(storedToken ? { id: 'usr_me', name: 'User', isOnline: true } : null)
       }
-    } else {
-      setUser(DEFAULT_USER)
+    } else if (!storedToken) {
+      setUser(null)
     }
     setIsLoading(false)
   }, [])
@@ -57,15 +57,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await authApi.login(phoneNumber, name)
       const authToken = res.token || 'demo-token'
-      const loggedUser = res.user || {
-        id: 'usr_' + Date.now(),
-        name,
-        phoneNumber,
-        avatarColor: 'bg-[#111827] text-white',
-        isOnline: true,
-      }
+      const rawUser = res.user as any
+      const loggedUser: User = rawUser
+        ? {
+            id: rawUser._id || rawUser.id || 'usr_' + Date.now(),
+            name: rawUser.name || name,
+            phoneNumber: rawUser.phone || rawUser.phoneNumber || phoneNumber,
+            avatarColor: 'bg-[#111827] text-white',
+            isOnline: true,
+          }
+        : {
+            id: 'usr_' + Date.now(),
+            name,
+            phoneNumber,
+            avatarColor: 'bg-[#111827] text-white',
+            isOnline: true,
+          }
+
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('relay_token', authToken)
+        window.localStorage.setItem('relay_token', authToken)
+        window.sessionStorage.setItem('token', authToken)
+        window.localStorage.setItem('token', authToken)
         window.localStorage.setItem('relay_user', JSON.stringify(loggedUser))
       }
       setToken(authToken)
@@ -80,6 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('relay_token', 'demo-token-123')
+        window.localStorage.setItem('relay_token', 'demo-token-123')
         window.localStorage.setItem('relay_user', JSON.stringify(demoUser))
       }
       setToken('demo-token-123')
