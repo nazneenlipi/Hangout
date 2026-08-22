@@ -35,7 +35,6 @@ Open `http://localhost:3000`. Production build verified with `pnpm build`.
 - **UX Details**: Auto-scrolling on new messages, scroll-up protection when reading history, loading skeletons, and empty state prompts.
 
 ### 3. AI Tools Usage
-- **Usage**: AI tools were used for boilerplate scaffolding, initial layout exploration, drafting TypeScript interfaces, and debugging edge cases.
 - **Refinement**: All AI outputs were manually reviewed, type-checked, and refactored for production quality and strict API contract adherence.
 
 ### 4. API Quirks & Handled Edge Cases
