@@ -8,10 +8,25 @@ export const messagesApi = {
   },
 
   sendMessage: async (conversationId: string, content: string): Promise<Message> => {
-    const res = await apiFetch<ApiEnvelope<Message>>(`/conversations/${conversationId}/messages`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
-    })
-    return unwrap(res)
+    try {
+      const res = await apiFetch<ApiEnvelope<Message>>('/messages', {
+        method: 'POST',
+        body: JSON.stringify({ conversationId, text: content, content }),
+      })
+      return unwrap(res)
+    } catch (err) {
+      const res = await apiFetch<ApiEnvelope<Message>>(`/conversations/${conversationId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ conversationId, text: content, content }),
+      })
+      return unwrap(res)
+    }
+  },
+}
+
+export const systemApi = {
+  getHealth: async (): Promise<{ status: string }> => {
+    const res = await apiFetch<{ status: string }>('/health')
+    return res
   },
 }

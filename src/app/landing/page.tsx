@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { ArrowUpRight, MessageCircle } from 'lucide-react'
+import { ArrowUpRight, MessageCircle, LogIn } from 'lucide-react'
 import { Hero } from '@/components/landing/Hero'
 import { FeatureShowcase } from '@/components/landing/FeatureShowcase'
 import { CTA } from '@/components/landing/CTA'
@@ -22,12 +22,20 @@ export default function LandingPage() {
             Open workspace <ArrowUpRight size={15} />
           </Link>
         </div>
-        <Link
-          href="/chat"
-          className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2357d5]"
-        >
-          Try relay
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/login"
+            className="flex items-center gap-1.5 rounded-full border border-[#dfe5ee] bg-white px-4 py-2 text-sm font-semibold text-[#111827] transition hover:bg-[#f5f7fa]"
+          >
+            <LogIn size={15} className="text-[#2357d5]" /> Log In
+          </Link>
+          <Link
+            href="/chat"
+            className="rounded-full bg-[#111827] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#2357d5]"
+          >
+            Try relay
+          </Link>
+        </div>
       </nav>
 
       <Hero />

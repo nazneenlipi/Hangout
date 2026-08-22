@@ -10,7 +10,11 @@ export const authApi = {
   login: async (phoneNumber: string, name: string): Promise<LoginResponse> => {
     const res = await apiFetch<ApiEnvelope<LoginResponse>>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ phoneNumber, name }),
+      body: JSON.stringify({
+        phone: phoneNumber,
+        phoneNumber: phoneNumber,
+        name: name,
+      }),
     })
     return unwrap(res)
   },

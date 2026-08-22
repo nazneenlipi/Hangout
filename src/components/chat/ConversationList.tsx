@@ -5,11 +5,11 @@ import Link from 'next/link'
 import {
   ChevronDown,
   MessageCircle,
-  MoreHorizontal,
   Plus,
   Search,
   UserPlus,
   Users,
+  LogIn,
 } from 'lucide-react'
 import { Conversation } from '@/types/conversation'
 import { ConversationListItem } from './ConversationListItem'
@@ -57,7 +57,14 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           </span>
           relay<span className="text-[#2357d5]">.</span>
         </Link>
-        <div className="relative">
+        <div className="relative flex items-center gap-2">
+          <Link
+            href="/login"
+            className="flex items-center gap-1 rounded-xl border border-[#e1e6ee] px-2.5 py-1.5 text-xs font-semibold text-[#111827] hover:bg-[#f7f8fa] transition"
+            title="Log in"
+          >
+            <LogIn size={14} className="text-[#2357d5]" /> Login
+          </Link>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="grid size-9 place-items-center rounded-xl border border-[#e1e6ee] text-[#657083] transition hover:bg-[#f7f8fa]"
@@ -145,7 +152,12 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             </p>
             <p className="text-xs text-[#8993a3]">Online</p>
           </div>
-          <MoreHorizontal size={18} className="text-[#8993a3]" />
+          <Link
+            href="/login"
+            className="flex items-center gap-1 text-xs font-semibold text-[#2357d5] hover:underline"
+          >
+            <LogIn size={15} /> Switch
+          </Link>
         </div>
       </div>
 
