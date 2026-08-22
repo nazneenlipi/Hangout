@@ -1,4 +1,4 @@
-# relay.
+# HANGOUT.
 
 A responsive Next.js web application for calm, focused conversations. The public landing page previews the chat experience; `/chat` is the interactive workspace with direct and group conversation affordances, message validation, optimistic local sending, and responsive layouts.
 
