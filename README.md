@@ -13,6 +13,15 @@ pnpm dev
 
 Open `http://localhost:3000`. Production build verified with `pnpm build`.
 
+## 🔑 Demo & Testing Credentials
+
+> **Note**: On initial visit, the workspace displays interactive **dummy preview data** so users can test UI affordances. Once logged in via `/login`, the application connects to the live backend REST API (`POST /api/auth/login`), persists the JWT token, and dynamically fetches real MongoDB database conversations and messages.
+
+To test live authentication and conversation sync on the `/login` page, use:
+
+- **Phone**: `+15551234567`
+- **Name**: `lipi`
+
 ## 📍 Application Routes
 
 - `/` — Creative landing page showcasing product features
