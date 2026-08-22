@@ -4,7 +4,7 @@ import { AuthProvider } from '@/lib/auth-context'
 import { QueryClientProvider } from '@/lib/query-client'
 
 export const metadata: Metadata = {
-  title: 'chatapp. - Calm & Focused Chat Surface',
+  title: 'Officetalk - Calm & Focused Chat Surface',
   description: 'A responsive Next.js workspace for direct messages and group conversations.',
 }
 

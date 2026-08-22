@@ -31,7 +31,7 @@ export const CTA: React.FC = () => {
 
       <footer className="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 text-xs text-[#8993a3] sm:flex-row sm:items-center sm:justify-between lg:px-10 border-t border-[#e5e9f0]">
         <span className="font-medium text-[#111827]">
-          relay<span className="text-[#2357d5]">.</span> / a thoughtful chat surface
+          Officetalk<span className="text-[#2357d5]">.</span> / a thoughtful chat surface
         </span>
         <span className="flex items-center gap-1">
           <Check className="text-[#2fb477]" size={14} /> Built for the assignment

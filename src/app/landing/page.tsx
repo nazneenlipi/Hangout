@@ -13,7 +13,7 @@ export default function LandingPage() {
           <span className="grid size-9 place-items-center rounded-xl bg-[#2357d5] text-white shadow-md shadow-[#2357d5]/20">
             <MessageCircle size={18} />
           </span>
-          chatapp<span className="text-[#2357d5]">.</span>
+          Officetalk<span className="text-[#2357d5]">.</span>
         </Link>
         <div className="hidden items-center gap-8 text-sm text-[#657083] md:flex">
           <a href="#features" className="hover:text-[#111827] transition">Features</a>
@@ -25,15 +25,15 @@ export default function LandingPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="flex items-center gap-1.5 rounded-full border border-[#dfe5ee] bg-white px-4 py-2 text-sm font-semibold text-[#111827] transition hover:bg-[#f5f7fa]"
+            className="rounded-full border border-[#e1e6ee] px-5 py-2 text-sm font-medium text-[#111827] transition hover:bg-[#f5f7fa]"
           >
-            <LogIn size={15} className="text-[#2357d5]" /> Log In
+            Log in
           </Link>
           <Link
             href="/chat"
             className="rounded-full bg-[#111827] px-5 py-2 text-sm font-medium text-white transition hover:bg-[#2357d5]"
           >
-            Try chatapp
+            Try Officetalk
           </Link>
         </div>
       </nav>

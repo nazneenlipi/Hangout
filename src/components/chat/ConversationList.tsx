@@ -55,7 +55,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
           <span className="grid size-8 place-items-center rounded-lg bg-[#2357d5] text-white shadow-sm shadow-[#2357d5]/30">
             <MessageCircle size={16} />
           </span>
-          chatapp<span className="text-[#2357d5]">.</span>
+          Officetalk<span className="text-[#2357d5]">.</span>
         </Link>
         <div className="relative flex items-center gap-2">
           <Link

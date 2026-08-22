@@ -42,7 +42,7 @@ export default function LoginPage() {
             <span className="grid size-10 place-items-center rounded-xl bg-[#2357d5] text-white shadow-md shadow-[#2357d5]/30">
               <MessageCircle size={20} />
             </span>
-            chatapp<span className="text-[#2357d5]">.</span>
+            Officetalk<span className="text-[#2357d5]">.</span>
           </Link>
           <h1 className="text-2xl font-bold text-[#111827]">Welcome back</h1>
           <p className="mt-1 text-sm text-[#657083]">Sign in to access your chat workspace</p>

@@ -17,7 +17,7 @@ Open `http://localhost:3000`. The production build is verified with `pnpm build`
 - `/chat` — responsive chat workspace
 - `docs/api-documentation.md` — API contract and assumptions
 
-# HANGOUT / RELAY CHAT APPLICATION
+# OFFICETALK CHAT APPLICATION
 
 A modern, responsive Next.js web application for calm, focused direct and group conversations. Features an interactive landing page previewing the core chat experience, a full `/chat` workspace connected to live REST and Socket.io endpoints, optimistic sending, real-time sync, and defensive response normalization.
 
