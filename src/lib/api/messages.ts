@@ -8,19 +8,11 @@ export const messagesApi = {
   },
 
   sendMessage: async (conversationId: string, content: string): Promise<Message> => {
-    try {
-      const res = await apiFetch<ApiEnvelope<Message>>('/messages', {
-        method: 'POST',
-        body: JSON.stringify({ conversationId, text: content, content }),
-      })
-      return unwrap(res)
-    } catch (err) {
-      const res = await apiFetch<ApiEnvelope<Message>>(`/conversations/${conversationId}/messages`, {
-        method: 'POST',
-        body: JSON.stringify({ conversationId, text: content, content }),
-      })
-      return unwrap(res)
-    }
+    const res = await apiFetch<ApiEnvelope<Message>>('/messages', {
+      method: 'POST',
+      body: JSON.stringify({ conversationId, text: content }),
+    })
+    return unwrap(res)
   },
 }
 

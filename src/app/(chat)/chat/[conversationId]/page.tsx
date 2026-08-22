@@ -48,22 +48,7 @@ export default function ActiveConversationPage() {
 
   const foundConv = allConversations.find((c) => c.id === conversationId)
 
-  useEffect(() => {
-    if (foundConv) return
-    if (!conversationId) return
-
-    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(conversationId)
-    if (isValidObjectId) {
-      conversationsApi
-        .getConversationById(conversationId)
-        .then((raw) => {
-          if (raw) setFetchedConv(mapSingleConversation(raw))
-        })
-        .catch(() => {})
-    }
-  }, [conversationId, foundConv])
-
-  const activeConversation: Conversation = foundConv || fetchedConv || {
+  const activeConversation: Conversation = foundConv || {
     id: conversationId || '',
     name: 'Chat',
     isGroup: false,

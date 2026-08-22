@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Users, X, Check } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Users, X, Check, Search } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Avatar } from '@/components/ui/Avatar'
+import { User } from '@/types/user'
+import { conversationsApi } from '@/lib/api/conversations'
 
 export interface NewGroupModalProps {
   isOpen: boolean
@@ -12,32 +14,52 @@ export interface NewGroupModalProps {
   onCreateGroup: (groupName: string, participantIds: string[]) => void
 }
 
-const SAMPLE_CONTACTS = [
-  { id: 'u1', name: 'Alex Lee', phone: '+1 555-0101' },
-  { id: 'u2', name: 'Maya Lin', phone: '+1 555-0102' },
-  { id: 'u3', name: 'Jordan Kim', phone: '+1 555-0103' },
-  { id: 'u4', name: 'Devon Bell', phone: '+1 555-0104' },
-]
-
 export const NewGroupModal: React.FC<NewGroupModalProps> = ({
   isOpen,
   onClose,
   onCreateGroup,
 }) => {
   const [groupName, setGroupName] = useState('')
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [query, setQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<User[]>([])
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+
+  useEffect(() => {
+    if (isOpen) {
+      conversationsApi.searchUsers('').then((res) => {
+        if (Array.isArray(res)) setSearchResults(res)
+      }).catch(() => {})
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  const handleSearch = async (val: string) => {
+    setQuery(val)
+    setIsSearching(true)
+    try {
+      const users = await conversationsApi.searchUsers(val)
+      setSearchResults(users)
+    } catch (err) {
+      setSearchResults([])
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  const toggleSelectUser = (u: User) => {
+    setSelectedUsers((prev) =>
+      prev.some((item) => item.id === u.id)
+        ? prev.filter((item) => item.id !== u.id)
+        : [...prev, u]
     )
   }
 
   const handleCreate = () => {
-    if (!groupName.trim() || selectedIds.length === 0) return
-    onCreateGroup(groupName.trim(), selectedIds)
+    if (!groupName.trim() || selectedUsers.length === 0) return
+    const ids = selectedUsers.map((u) => u.id)
+    onCreateGroup(groupName.trim(), ids)
     onClose()
   }
 
@@ -71,47 +93,67 @@ export const NewGroupModal: React.FC<NewGroupModalProps> = ({
 
           <div>
             <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#9aa4b2]">
-              Select Participants ({selectedIds.length})
+              Search & Add Members ({selectedUsers.length} Selected)
             </label>
+            <div className="mb-3">
+              <Input
+                icon={<Search size={16} />}
+                placeholder="Search member by name or phone..."
+                value={query}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+            </div>
+
             <div className="max-h-48 overflow-y-auto space-y-1">
-              {SAMPLE_CONTACTS.map((c) => {
-                const isSelected = selectedIds.includes(c.id)
-                return (
-                  <button
-                    key={c.id}
-                    onClick={() => toggleSelect(c.id)}
-                    className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 hover:bg-[#f5f7fa] transition"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar name={c.name} size="sm" />
-                      <div className="text-left">
-                        <p className="text-sm font-semibold text-[#111827]">{c.name}</p>
-                        <p className="text-xs text-[#8993a3]">{c.phone}</p>
-                      </div>
-                    </div>
-                    <div
-                      className={`grid size-5 place-items-center rounded-md border transition ${
-                        isSelected
-                          ? 'border-[#2357d5] bg-[#2357d5] text-white'
-                          : 'border-[#dfe5ee] bg-white'
-                      }`}
+              {searchResults.length === 0 ? (
+                <p className="p-3 text-center text-xs text-[#8993a3]">
+                  {isSearching ? 'Searching...' : 'No users found'}
+                </p>
+              ) : (
+                searchResults.map((u) => {
+                  const isSelected = selectedUsers.some((item) => item.id === u.id)
+                  return (
+                    <button
+                      key={u.id}
+                      onClick={() => toggleSelectUser(u)}
+                      className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 hover:bg-[#f5f7fa] transition"
                     >
-                      {isSelected && <Check size={12} />}
-                    </div>
-                  </button>
-                )
-              })}
+                      <div className="flex items-center gap-3">
+                        <Avatar name={u.name} size="sm" />
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-[#111827]">{u.name}</p>
+                          <p className="text-xs text-[#8993a3]">{u.phoneNumber || u.id}</p>
+                        </div>
+                      </div>
+                      <div
+                        className={`grid size-5 place-items-center rounded-md border transition ${
+                          isSelected
+                            ? 'border-[#2357d5] bg-[#2357d5] text-white'
+                            : 'border-[#dfe5ee] bg-white'
+                        }`}
+                      >
+                        {isSelected && <Check size={12} />}
+                      </div>
+                    </button>
+                  )
+                })
+              )}
             </div>
           </div>
 
           <Button
             variant="primary"
             className="w-full"
-            disabled={!groupName.trim() || selectedIds.length === 0}
+            disabled={!groupName.trim() || selectedUsers.length < 2}
             onClick={handleCreate}
           >
-            Create Group Chat
+            Create Group Chat ({selectedUsers.length} members)
           </Button>
+          {selectedUsers.length < 2 && (
+            <p className="text-center text-xs text-[#8993a3]">
+              * Select at least 2 members to create a group chat (minimum 3 members total).
+            </p>
+          )}
         </div>
       </div>
     </div>
