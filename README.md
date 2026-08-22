@@ -1,5 +1,7 @@
 # Officetalk — Chat Application
 
+![Officetalk Chat Application Preview](https://github.com/user-attachments/assets/9b7e5929-8b7c-444a-bf5a-8a647f3d02a2)
+
 A responsive Next.js web application for calm, focused conversations. The public landing page previews the chat experience; `/chat` is the interactive workspace with direct and group conversation affordances, message validation, optimistic local sending, and responsive layouts.
 
 ## 🚀 Quick Start
