@@ -25,19 +25,15 @@ export function useConversations() {
 
     try {
       setIsLoading(true)
-      console.log('[useConversations] Fetching /api/conversations...')
       const data = await conversationsApi.getConversations()
-      console.log('[useConversations] Raw API response:', data)
       if (Array.isArray(data)) {
         const mapped = data.map(mapBackendConversation)
-        console.log('[useConversations] Successfully mapped conversations count:', mapped.length, mapped)
         setConversations(mapped)
       } else {
         setConversations([])
       }
       setError(null)
     } catch (err) {
-      console.error('[useConversations] Error fetching conversations from API:', err)
       setError(err as Error)
       setConversations([])
     } finally {
